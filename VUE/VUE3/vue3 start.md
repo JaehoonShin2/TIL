@@ -48,6 +48,16 @@
     : axios 와 같이 api 를 사용할 때, 사용하는 폴더이다.
     
 
+### 프로젝트의 폴더 구조
+
+컴포넌트와 라우팅을 통해 보여줄 view 화면들을 구성하면서 어떤 식으로 폴더 구조를 잡는게 이상적일지 고민을 했다.
+
+현 시점에서 떠오른 방식은 
+assets
+router
+modules/functions(기능들)/components+view.vue 를 함께 생성하는 형식이다.
+
+
 
 ### ref 와 reactive
 
