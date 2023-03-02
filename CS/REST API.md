@@ -95,3 +95,62 @@ member/3 은 `3번의 member` 명사, 구성요소를 가르키고, 앞에 붙�
 - HTTP 인증 : 데이터 암호화(base64) 를 통해 인증
 - key base 인증 : 서버가 client 에게 key 를 발급하고, request 할 때 마다 key 를 포함. server 는 key를 확인해서 적합한 client 인지 확인한다.
 - OAuth 인증 : token 을 생성해서 인증을 하는 것. kakao login 이나 google login 등을 실시할 때 사용
+
+
+![](https://velog.velcdn.com/images/aristia/post/321f77c5-9ed7-4338-8d0a-b822622cf6d4/image.png)
+
+rest 방식에 맞게 작성된 getMapping 과 deleteMapping 구조의 method.
+
+![](https://velog.velcdn.com/images/aristia/post/f3758864-db7d-4344-adf1-4750f7bf7bae/image.png)
+
+실행 결과 log 는 정상적으로 출력되고 있다.
+
+![](https://velog.velcdn.com/images/aristia/post/eb432cd7-878d-423b-8b8b-9741fcfc6dd5/image.png)
+
+실제로 get 방식 통신의 responsebody 에는 정상적으로 데이터가 담겨있다.
+
+![](https://velog.velcdn.com/images/aristia/post/e0ddbeb3-1792-4c22-b8d6-9b9a8d24fa0d/image.png)
+
+그런데 put/delete 방식의 통신 결과는 responsebody 에 데이터가 담겨져 있지 않다.
+
+그 이유는 post 의 경우 데이터가 전송되는 `application/x-www-form-urlencoded` 형식의 콘텐츠 타입을 parsing 처리를 해주기 때문에 가능하다.
+
+하지만 put/delete 의 경우는 기본적으로 `application/x-www-form-urlencoded` 방식으로 데이터가 전송되고, parsing 처리가 안되기 때문에 error 가 발생한다. 이를 해결하기 위해서는 여러 방법이 존재한다.
+
+1. tomcat 의 server.xml 에서 설정해주는 방법
+
+2. put/delete method 가 실행되는 ajax/axios 에서, 전송하게 되는 데이터의 타입 자체를 json 으로 변환시켜서 전송하는 방법(번거롭다)
+
+![](https://velog.velcdn.com/images/aristia/post/1f972bf1-46ef-49a0-9226-30c37de97f16/image.png)
+
+javascript 객체 타입의 data 를 JSON.stringfy() 메소드를 이용해 json 형태로 가공한 뒤 전송했다. 
+
+![](https://velog.velcdn.com/images/aristia/post/37cec924-b130-4663-9a32-d4bfbcb175d4/image.png)
+
+client 에게서 json 형태로 받게 된 데이터의 경우, RequestParam 이나 ModelAttribute 의 사용이 불가능하다.
+
+따라서 `@RequestBody` 어노테이션을 사용해서 데이터를 받아야 정상적으로 주입이 가능해진다.
+
+![](https://velog.velcdn.com/images/aristia/post/cbbfa621-44fe-49da-b898-f95e3e99ea97/image.png)
+
+![](https://velog.velcdn.com/images/aristia/post/bc873429-c7bd-46a8-acfe-c46d6d2cef26/image.png)
+
+정상적으로 데이터가 넘어왔음을 알 수 있다.
+
+
+![](https://velog.velcdn.com/images/aristia/post/d0a78181-17f9-407d-8d58-79a792449cef/image.png)
+
+단, 이 경우 get 방식와 다른 method 의 방식을 이원화시켜서 만들어야 한다는 단점이 있다. 왜냐하면 get 방식의 경우, 쿼리스트링으로 데이터가 전송되기 때문에 put/delete 를 사용한 ajax 함수를 재사용하게 될 경우 json 형태의 데이터 전달이 불가능하기 때문이다.
+
+
+3. 클라이언트에서 was 로 넘어올 때, filter 를 생성해서 parsing 처리를 해주는 방법
+
+![](https://velog.velcdn.com/images/aristia/post/793479cc-cec8-4e9e-81f8-5be8508e2d7b/image.png)
+
+![](https://velog.velcdn.com/images/aristia/post/67797bfb-2449-4e33-b39b-4cb6c948b495/image.png)
+
+![](https://velog.velcdn.com/images/aristia/post/527047b8-e4ca-49f1-a78e-91496ac0cbc6/image.png)
+
+![](https://velog.velcdn.com/images/aristia/post/6936f4b4-964a-4ffa-9a50-372aa2e51757/image.png)
+
+
